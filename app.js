@@ -1,4 +1,3 @@
-// ===== ELEMENTOS DO DOM =====
 const tituloInput = document.getElementById('titulo');
 const textoInput = document.getElementById('texto');
 const fotoInput = document.getElementById('foto');
@@ -8,10 +7,10 @@ const btnCancelar = document.getElementById('btnCancelar');
 const editandoId = document.getElementById('editandoId');
 const listaEntradas = document.getElementById('listaEntradas');
 
-// ===== DADOS =====
+// dados 
 let entradas = [];
 
-// ===== INICIALIZAÇÃO =====
+// inicialização 
 function carregarEntradas() {
     const dados = localStorage.getItem('diarioEntradas');
     if (dados) {
@@ -20,28 +19,92 @@ function carregarEntradas() {
     renderizar();
 }
 
-// ===== SALVAR NO LOCALSTORAGE =====
+// salvar no localStorage 
 function salvarNoStorage() {
     localStorage.setItem('diarioEntradas', JSON.stringify(entradas));
 }
 
-// ===== CRIAR ENTRADA =====
+// escapar html
+function escapeHtml(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML;
+}
+
+// criando entrada
 function criarEntrada(titulo, texto, foto) {
     const entrada = {
         id: Date.now().toString(),
         titulo: titulo,
         texto: texto,
-        data: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
+        data: new Date().toISOString().split('T')[0],
         foto: foto || null
     };
     
-    entradas.unshift(entrada); // Adiciona no início do array (mais recente primeiro)
+    entradas.unshift(entrada);
     salvarNoStorage();
     renderizar();
     limparFormulario();
 }
 
-// ===== RENDERIZAR CARDS =====
+// atualizando entrada
+function atualizarEntrada(id, titulo, texto, foto) {
+    const entrada = entradas.find(entrada => entrada.id === id);
+    
+    if (!entrada) return;
+    
+    entrada.titulo = titulo;
+    entrada.texto = texto;
+    entrada.foto = foto;
+    
+    salvarNoStorage();
+    renderizar();
+    limparFormulario();
+}
+
+// excluindo entrada
+function excluirEntrada(id) {
+    entradas = entradas.filter(entrada => entrada.id !== id);
+    
+    // Se estava editando essa entrada, limpa o formulário
+    if (editandoId.value === id) {
+        limparFormulario();
+    }
+    
+    salvarNoStorage();
+    renderizar();
+}
+
+// editando entrada
+function editarEntrada(id) {
+    const entrada = entradas.find(entrada => entrada.id === id);
+    
+    if (!entrada) return;
+    
+    // preenche o formulário
+    tituloInput.value = entrada.titulo;
+    textoInput.value = entrada.texto;
+    editandoId.value = entrada.id;
+    
+    // foto
+    if (entrada.foto) {
+        preview.src = entrada.foto;
+        preview.style.display = 'block';
+    } else {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
+    
+    // muda aparência dos botões
+    btnSalvar.textContent = '✏️ Atualizar Entrada';
+    btnCancelar.style.display = 'block';
+    
+    // scroll até o formulário
+    document.querySelector('.formulario').scrollIntoView({ behavior: 'smooth' });
+    tituloInput.focus();
+}
+
+// renderiza os cards
 function renderizar() {
     listaEntradas.innerHTML = '';
     
@@ -56,13 +119,12 @@ function renderizar() {
     });
 }
 
-// ===== CRIAR CARD =====
+// criando os cards
 function criarCard(entrada) {
     const card = document.createElement('div');
     card.className = 'card';
     card.setAttribute('data-id', entrada.id);
     
-    // Formatar data para exibição
     const dataFormatada = new Date(entrada.data + 'T00:00:00').toLocaleDateString('pt-BR', {
         day: 'numeric',
         month: 'long',
@@ -90,7 +152,7 @@ function criarCard(entrada) {
     return card;
 }
 
-// ===== LIMPAR FORMULÁRIO =====
+// limpa formulário
 function limparFormulario() {
     tituloInput.value = '';
     textoInput.value = '';
@@ -102,7 +164,9 @@ function limparFormulario() {
     btnSalvar.textContent = '💾 Salvar Entrada';
 }
 
-// ===== PREVIEW DA FOTO =====
+// eventos
+
+// Preview da foto ao selecionar
 fotoInput.addEventListener('change', function() {
     const file = this.files[0];
     
@@ -121,45 +185,62 @@ fotoInput.addEventListener('change', function() {
     }
 });
 
-// ===== SALVAR ENTRADA =====
+// salva ou atualiza
 btnSalvar.addEventListener('click', function() {
     const titulo = tituloInput.value.trim();
     const texto = textoInput.value.trim();
     const foto = preview.src || null;
+    const idEditando = editandoId.value;
     
-    // Validação simples
-    if (!titulo) {
-        alert('Por favor, insira um título para a entrada.');
-        tituloInput.focus();
+    // validação silenciosa (sem alert)
+    if (!titulo || !texto) {
+        // destaca os campos vazios
+        if (!titulo) tituloInput.style.borderColor = '#e03e3e';
+        if (!texto) textoInput.style.borderColor = '#e03e3e';
+        
+        // remove o destaque após 2 segundos
+        setTimeout(() => {
+            tituloInput.style.borderColor = '#e4e4e1';
+            textoInput.style.borderColor = '#e4e4e1';
+        }, 2000);
+        
         return;
     }
     
-    if (!texto) {
-        alert('Por favor, escreva algo sobre seu dia.');
-        textoInput.focus();
-        return;
+    if (idEditando) {
+        atualizarEntrada(idEditando, titulo, texto, foto);
+    } else {
+        criarEntrada(titulo, texto, foto);
     }
-    
-    criarEntrada(titulo, texto, foto);
 });
 
-// ===== ESCAPAR HTML (segurança básica) =====
-function escapeHtml(texto) {
-    const div = document.createElement('div');
-    div.textContent = texto;
-    return div.innerHTML;
+// cancela edição
+btnCancelar.addEventListener('click', function() {
+    limparFormulario();
+});
+
+// ===== TEMA ESCURO =====
+const btnTema = document.getElementById('btnTema');
+
+// Verifica tema salvo ao carregar
+const temaSalvo = localStorage.getItem('diarioTema');
+if (temaSalvo === 'dark') {
+    document.body.classList.add('dark');
+    btnTema.textContent = '☀️';
 }
 
-// ===== STUBS PARA EDITAR E EXCLUIR (implementar depois) =====
-function editarEntrada(id) {
-    console.log('Editar entrada:', id);
-    alert('Funcionalidade de edição será implementada no próximo passo!');
-}
+// Alternar tema
+btnTema.addEventListener('click', function() {
+    document.body.classList.toggle('dark');
+    
+    if (document.body.classList.contains('dark')) {
+        btnTema.textContent = '☀️';
+        localStorage.setItem('diarioTema', 'dark');
+    } else {
+        btnTema.textContent = '🌙';
+        localStorage.setItem('diarioTema', 'light');
+    }
+});
 
-function excluirEntrada(id) {
-    console.log('Excluir entrada:', id);
-    alert('Funcionalidade de exclusão será implementada no próximo passo!');
-}
-
-// ===== INICIAR APLICACAO =====
+// Iniciar
 carregarEntradas();
