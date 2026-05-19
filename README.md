@@ -9,6 +9,7 @@ Um diário pessoal digital construído com **HTML, CSS e JavaScript puro**, como
 <div align="center">
   <img src="./preview-claro.png" alt="Tema claro" width="400">
   <img src="./preview-escuro.png" alt="Tema escuro" width="400">
+  <img src="./preview-entradas.png" alt="Entradas" width="400">
 </div>
 
 ---
