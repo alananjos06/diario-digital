@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Diário Digital</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        
+        <!-- cabeçalho -->
+        <header>
+            <h1>Meu Diário Digital</h1>
+        </header>
+
+        <!-- formulário -->
+        <section class="formulario">
+            <h2>Nova Entrada</h2>
+            
+            <div class="campo">
+                <label for="titulo">Título</label>
+                <input type="text" id="titulo" placeholder="Ex: Meu dia na praia" maxlength="50">
+            </div>
+
+            <div class="campo">
+                <label for="texto">Como foi seu dia?</label>
+                <textarea id="texto" rows="5" placeholder="Escreva aqui..."></textarea>
+            </div>
+
+            <div class="campo">
+                <label for="foto">Foto (opcional)</label>
+                <input type="file" id="foto" accept="image/*">
+            </div>
+
+            <div class="preview-foto" id="previewContainer">
+                <img id="preview" src="" alt="Preview da foto" style="display: none;">
+            </div>
+
+            <button type="button" id="btnSalvar">Salvar Entrada</button>
+            <button type="button" id="btnCancelar" class="btn-cancelar" style="display: none;">Cancelar Edição</button>
+            
+            <input type="hidden" id="editandoId" value="">
+        </section>
+
+        <!-- Lista de Entradas -->
+        <section class="entradas">
+            <h2>Minhas Entradas</h2>
+            <div id="listaEntradas">
+                <!-- Os cards aparecerão aqui dinamicamente -->
+                <p class="vazio">Nenhuma entrada ainda. Que tal escrever sobre seu dia?</p>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
