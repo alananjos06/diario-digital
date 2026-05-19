@@ -222,14 +222,14 @@ btnCancelar.addEventListener('click', function() {
 // ===== TEMA ESCURO =====
 const btnTema = document.getElementById('btnTema');
 
-// Verifica tema salvo ao carregar
+// verifica tema salvo ao carregar
 const temaSalvo = localStorage.getItem('diarioTema');
 if (temaSalvo === 'dark') {
     document.body.classList.add('dark');
     btnTema.textContent = '☀️';
 }
 
-// Alternar tema
+// alterna tema
 btnTema.addEventListener('click', function() {
     document.body.classList.toggle('dark');
     
